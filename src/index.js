@@ -2,7 +2,9 @@
 
 import './styles.scss';
 import 'bootstrap';
+import i18next from 'i18next';
 import initilizationView from './view.js';
+import resources from './locales/ru.js';
 
 // elements
 const elements = {
@@ -13,17 +15,25 @@ const elements = {
   infoPElement: document.querySelector('.feedback.m-0.position-absolute.small'),
 };
 
-// initilization
+// initilization State
 const init = () => ({
   formValue: elements.inputField.value,
   existingURL: {},
   validationStatus: 'success',
   getRssStatus: '',
-  getRssSuccessText: '',
-  getRssError: '',
+  rssId: '',
+  validationId: '',
 });
 
 const state = init();
+
+// Initilization i18n
+const i18n = i18next.createInstance();
+await i18n.init({
+  lng: 'ru',
+  debug: false,
+  resources,
+});
 
 elements.inputField.addEventListener('input', () => {
   state.formValue = elements.inputField.value;
@@ -35,7 +45,7 @@ elements.inputField.addEventListener('input', () => {
 elements.form.addEventListener('submit', (e) => {
   e.preventDefault();
   console.log(state.formValue);
-  initilizationView(state, elements);
+  initilizationView(state, elements, i18n);
 });
 
 // render(state,elements);
