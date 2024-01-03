@@ -23,6 +23,8 @@ const init = () => ({
   getRssStatus: '',
   rssId: '',
   validationId: '',
+  posts: [],
+  fid: [],
 });
 
 const state = init();

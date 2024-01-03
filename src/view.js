@@ -3,6 +3,7 @@
 import onChange from 'on-change';
 import * as yup from 'yup';
 import ruLocaleKeys from './locales/ru.js';
+import { rssParser, xmlRender } from './rssParser.js';
 
 // Description of Id statuses:
 // for example 01VF - it means 01-number, VF- Validation Failed
@@ -109,7 +110,7 @@ const render = (state, elements, i18n) => {
 // Get Rss Info
 const getRssInfo = (url, watchedState) => {
   console.log(' before getRssInfo', watchedState);
-  return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(`${url}`)}`)
+  return fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`)
     .then((response) => {
       if (response.ok) {
         return response;
@@ -127,10 +128,14 @@ const getRssInfo = (url, watchedState) => {
     .then((data) => {
       console.log('dataJson', data);
       const dataText = data.contents;
+      console.log(watchedState);
       console.log('dataText', dataText);
-      const parser = new window.DOMParser();
-      const xmlDoc = parser.parseFromString(dataText, 'text/xml');
+      const xmlDoc = rssParser(dataText);
       console.log('xmlDoc', xmlDoc);
+      console.log('xmlDoc Channel', xmlDoc.querySelector('title'));
+      console.log('xmlDoc Channel', xmlDoc.querySelector('description').textContent);
+      console.log('xmlDoc item', xmlDoc.querySelectorAll('item'));
+      xmlRender(xmlDoc, watchedState);
 
       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
 
