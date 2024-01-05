@@ -4,6 +4,7 @@ import onChange from 'on-change';
 import * as yup from 'yup';
 import ruLocaleKeys from './locales/ru.js';
 import { rssParser, xmlRender } from './rssParser.js';
+import updatePosts from './updatePosts.js';
 
 // Description of Id statuses:
 // for example 01VF - it means 01-number, VF- Validation Failed
@@ -135,7 +136,6 @@ const getRssInfo = (url, watchedState) => {
       console.log('xmlDoc Channel', xmlDoc.querySelector('title'));
       console.log('xmlDoc Channel', xmlDoc.querySelector('description').textContent);
       console.log('xmlDoc item', xmlDoc.querySelectorAll('item'));
-      xmlRender(xmlDoc, watchedState);
 
       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
 
@@ -143,6 +143,8 @@ const getRssInfo = (url, watchedState) => {
         watchedState.getRssStatus = 'success';
         watchedState.rssId = '01RS';
         watchedState.existingURL[url] = true;
+        xmlRender(xmlDoc, watchedState);
+        // updatePosts(watchedState);
         console.log(data);
       } else {
         // В ответе нет данных, считаем, что ресурс не существует
@@ -152,6 +154,7 @@ const getRssInfo = (url, watchedState) => {
         console.error('Resource does not exist');
         throw new Error('Resource does not exist');
       }
+      // updatePosts(watchedState)
     })
     .catch((error) => {
       console.error('Error:', error);
@@ -173,13 +176,14 @@ const initilizationView = (state, elements, i18n) => {
     .then(() => getRssInfo(state.formValue, watchedState, i18n))
     .then(() => {
       console.log(state);
-      console.log('state.existingURL', state.existingURL);
+      console.log('state.existingURL', Object.keys(state.existingURL));
     })
     .catch((error) => {
       console.error('Error during initialization:', error);
       console.log(state);
     })
     .finally(() => {
+      updatePosts(watchedState);
       render(state, elements, i18n);
     });
 };
