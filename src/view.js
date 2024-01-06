@@ -13,11 +13,11 @@ import updatePosts from './updatePosts.js';
 // Yup
 yup.setLocale({
   string: {
-    required: () => ({ key: 'ruLocaleKeys.statusText.validation.required' }),
-    url: () => ({ key: 'ruLocaleKeys.statusText.validation.url' }),
-    notOneOf: () => ({ key: 'ruLocaleKeys.statusText.rss.failed.alreadyExist' }),
-    rssSuccess: () => ({ key: 'ruLocaleKeys.statusText.rss.success' }),
-    rssFailedNotValid: () => ({ key: 'ruLocaleKeys.statusText.rss.failed.notValid' }),
+    required: () => ({ key: 'ruLocaleKeys.statusText.validationFailedId[01VF]' }),
+    url: () => ({ key: 'ruLocaleKeys.statusText.validationFailedId[02VF]' }),
+    notOneOf: () => ({ key: 'ruLocaleKeys.statusText.validationFailedId[03VF]' }),
+    rssSuccess: () => ({ key: 'ruLocaleKeys.statusText.rssSuccessId[01RS]' }),
+    rssFailedNotValid: () => ({ key: 'ruLocaleKeys.statusText.rssFailedId[01RF]' }),
     // rssAlreadyExist: () => ({key: 'ruLocaleKeys.statusText.rss.failed.alreadyExist'}),
   },
 
@@ -127,32 +127,21 @@ const getRssInfo = (url, watchedState) => {
     })
 
     .then((data) => {
-      console.log('dataJson', data);
       const dataText = data.contents;
-      console.log(watchedState);
-      console.log('dataText', dataText);
       const xmlDoc = rssParser(dataText);
-      console.log('xmlDoc', xmlDoc);
-      console.log('xmlDoc Channel', xmlDoc.querySelector('title'));
-      console.log('xmlDoc Channel', xmlDoc.querySelector('description').textContent);
-      console.log('xmlDoc item', xmlDoc.querySelectorAll('item'));
-
       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
 
       if (channelElement) {
         watchedState.getRssStatus = 'success';
         watchedState.rssId = '01RS';
         watchedState.existingURL[url] = true;
+        console.log('xmlDoc', xmlDoc);
         xmlRender(xmlDoc, watchedState);
-        // updatePosts(watchedState);
-        console.log(data);
       } else {
         // В ответе нет данных, считаем, что ресурс не существует
         watchedState.getRssStatus = 'failed';
         watchedState.rssId = '01RF';
-        // watchedState.getRssError = i18n.t(ruLocaleKeys.errors.rss.failed.notValid);
-        console.error('Resource does not exist');
-        throw new Error('Resource does not exist');
+        throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
       }
       // updatePosts(watchedState)
     })

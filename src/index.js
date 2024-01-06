@@ -25,6 +25,7 @@ const init = () => ({
   validationId: '',
   posts: [],
   fid: [],
+  updateRssStatus: '',
 });
 
 const state = init();
@@ -49,24 +50,3 @@ elements.form.addEventListener('submit', (e) => {
   console.log(state.formValue);
   initilizationView(state, elements, i18n);
 });
-
-// render(state,elements);
-
-// elements.form.addEventListener('submit', (e)=> {
-//   e.preventDefault();
-//   console.log(state.formValue)
-//   validation(state)
-//   .then(() => {
-
-//     render(state, elements);
-//     console.log(state);
-//   })
-//   .catch((error) => {
-//     render(state, elements);
-//     console.log(state);
-//   });
-
-//   //render(state,elements);
-
-// })
-// //console.log(state);

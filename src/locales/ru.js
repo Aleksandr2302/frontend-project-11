@@ -17,6 +17,16 @@ const translation = {
     rssFailedId: {
       '01RF': 'Ресурс не содержит валидный RSS',
     },
+    newWorkProblems: {
+      '01NP': 'Ошибка сети',
+    },
+  },
+  feeds: {
+    title: 'Фиды',
+  },
+  posts: {
+    title: 'Посты',
+    button: 'Просмотр',
   },
 };
 export default translation;

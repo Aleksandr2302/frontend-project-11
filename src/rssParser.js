@@ -1,3 +1,5 @@
+import ruLocaleKeys from './locales/ru.js';
+
 const generatorId = (() => {
   let startId = 0;
 
@@ -10,7 +12,6 @@ const generatorId = (() => {
 const addFidInfoInState = (fidTitle, fidTitleDesc, watchedState) => {
   const arrExistingURL = Object.keys(watchedState.existingURL);
   const newFid = {
-    // id: watchedState.fid.length + 1,
     title: fidTitle,
     description: fidTitleDesc,
     dependsOnTheURL: arrExistingURL[arrExistingURL.length - 1],
@@ -52,7 +53,7 @@ const addPostInfoInState = (postTitle, postLink, watchedState) => {
 const createInitialPostHtml = `
   <div class="card border-0">
     <div class="card-body">
-      <h2 class="card-title h4">Посты</h2>
+      <h2 class="card-title h4">${ruLocaleKeys.posts.title}</h2>
     </div>
     <ul class="list-group border-0 rounded-0">
     </ul>
@@ -62,7 +63,7 @@ const createInitialPostHtml = `
 const createInitialFidHtml = `
 <div class="card border-0">
   <div class="card-body">
-    <h2 class="card-title h4">Фиды</h2>
+    <h2 class="card-title h4">${ruLocaleKeys.feeds.title}</h2>
   </div>
   <ul class="list-group border-0 rounded-0">
   </ul>
@@ -75,7 +76,7 @@ const createLiFidElement = (fidTitle, fidTitleDesc) => (
   </li>`);
 
 const createNewPostTitle = (postTitle, link) => (
-  `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0"><a href="${link.textContent}" class="fw-bold" data-id="2" target="_blank" rel="noopener noreferrer">${postTitle}</a><button type="button" class="btn btn-outline-primary btn-sm" data-id="2" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button></li>
+  `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0"><a href="${link.textContent}" class="fw-bold" data-id="2" target="_blank" rel="noopener noreferrer">${postTitle}</a><button type="button" class="btn btn-outline-primary btn-sm" data-id="2" data-bs-toggle="modal" data-bs-target="#modal">${ruLocaleKeys.posts.button}</button></li>
   `);
 
 const showButtonFunction = (watchedState, button) => {
@@ -96,14 +97,16 @@ const showButtonFunction = (watchedState, button) => {
 
 const addPost = (post, watchedState, postListClass) => {
   const postTitle = post.querySelector('title').textContent;
-  console.log('postTitle', postTitle);
+  console.log('post', post);
   const link = post.querySelector('link');
   addPostInfoInState(postTitle, link, watchedState);
   const newPostTitle = createNewPostTitle(postTitle, link);
   const postDescription = post.querySelector('description').textContent;
   document.querySelector('.modal-title').textContent = postTitle;
   document.querySelector('.modal-body.text-break').textContent = postDescription;
-  console.log('postListClass', postListClass);
+  const divModalFooter = document.querySelector('.modal-footer');
+  const articleLink = divModalFooter.querySelector('.btn.btn-primary.full-article');
+  articleLink.href = link.textContent;
   postListClass.insertAdjacentHTML('afterbegin', newPostTitle);
 };
 
@@ -118,19 +121,13 @@ const xmlRender = (xml, watchedState) => {
   }
   const postListClass = mainPostDiv.querySelector('.list-group.border-0.rounded-0');
   const fidUlClass = mainFidDiv.querySelector('.list-group.border-0.rounded-0');
-  const newSection = document.querySelector('.container-fluid.container-xxl.p-5');
-  console.log('section', newSection);
+  // const newSection = document.querySelector('.container-fluid.container-xxl.p-5');
   // fidTitle
   const fidTitle = xml.querySelector('title').textContent;
-  // Новые уроки на Хекслете
-  console.log('fidTitle', fidTitle);
   // fidTitleDesc
   const fidTitleDesc = xml.querySelector('description').textContent;
-  // Практические уроки по программированию
-  console.log('fidTitleDesc', fidTitleDesc);
   addFidInfoInState(fidTitle, fidTitleDesc, watchedState);
   const liFidElement = createLiFidElement(fidTitle, fidTitleDesc);
-  console.log('fidUlClass', fidUlClass);
   fidUlClass.insertAdjacentHTML('afterbegin', liFidElement);
   // Imems
   const postLists = xml.querySelectorAll('item');
@@ -156,11 +153,9 @@ const singlePostRender = (newPost) => {
   document.querySelector('.modal-body.text-break').textContent = postDescription;
   postListClass.insertAdjacentHTML('afterbegin', newPostTitle);
 };
-
 const rssParser = (data) => {
   const parser = new window.DOMParser();
   const xmlDoc = parser.parseFromString(data, 'text/xml');
-  // xmlRender(xmlDoc);
   return xmlDoc;
 };
 

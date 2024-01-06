@@ -1,6 +1,7 @@
 import {
   rssParser, generatorId, addFidId, singlePostRender,
 } from './rssParser.js';
+import ruLocaleKeys from './locales/ru.js';
 
 const updatePosts = (watchedState) => {
   console.log('UPDATEPOSTS');
@@ -11,11 +12,12 @@ const updatePosts = (watchedState) => {
       if (response.ok) {
         return response;
       }
-      throw new Error('Network response was not ok.');
+      throw new Error(ruLocaleKeys.statusText.newWorkProblems['01NP']);
     })
 
     .then((data) => {
       console.log('data', data);
+      watchedState.updateRssStatus = 'Success';// eslint-disable-line no-param-reassign
       return data.json();
     })
 
@@ -30,8 +32,6 @@ const updatePosts = (watchedState) => {
         const postTitle = post.querySelector('title').textContent;
 
         const postExists = watchedState.posts.some((existsPost) => existsPost.title === postTitle);
-        // console.log('postExist',postExists)
-
         if (!postExists) {
           watchedState.posts.push({
             title: postTitle,
@@ -46,7 +46,10 @@ const updatePosts = (watchedState) => {
       });
       console.log('watchedState', watchedState);
     })
-    .catch((e) => console.error(e.message))
+    .catch((error) => {
+      console.error(error.message);
+      watchedState.updateRssStatus = ruLocaleKeys.statusText.newWorkProblems['01NP'];// eslint-disable-line no-param-reassign
+    })
     .finally(() => setTimeout(() => updatePosts(watchedState), 5000)));
 };
 
