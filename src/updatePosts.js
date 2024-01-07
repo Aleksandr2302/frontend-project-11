@@ -2,32 +2,31 @@ import {
   rssParser, generatorId, addFidId, singlePostRender,
 } from './rssParser.js';
 import ruLocaleKeys from './locales/ru.js';
+import axios from 'axios';
 
 const updatePosts = (watchedState) => {
   console.log('UPDATEPOSTS');
   const existingURL = Object.keys(watchedState.existingURL);
   console.log('existingURL', existingURL);
-  existingURL.forEach((url) => fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`)
-    .then((response) => {
-      if (response.ok) {
-        return response;
-      }
-      throw new Error(ruLocaleKeys.statusText.newWorkProblems['01NP']);
-    })
+  existingURL.forEach((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`)
+  .then((response) => {
+    if (response.status !== 200) {
+      watchedState.getRssStatus = 'failed';
+      watchedState.rssId = '01NP';
+      throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
+    }
+    console.log('response',response)
+    return response;
+  })
 
     .then((data) => {
       console.log('data', data);
       watchedState.updateRssStatus = 'Success';// eslint-disable-line no-param-reassign
-      return data.json();
-    })
-
-    .then((dataJson) => {
-      const dataText = dataJson.contents;
+      
+      const dataText = data.data.contents;
       const xml = rssParser(dataText);
       const postLists = xml.querySelectorAll('item');
-      // const loadedPosts = watchedState.posts.filter((post)=> post.dependsOnTheURL === url );
-      // const loadedPostsIds = new Set(loadedPosts.map((post) => post.id));
-
+     
       postLists.forEach((post) => {
         const postTitle = post.querySelector('title').textContent;
 
