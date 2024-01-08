@@ -8,7 +8,7 @@ const updatePosts = (watchedState) => {
   console.log('UPDATEPOSTS');
   const existingURL = Object.keys(watchedState.existingURL);
   console.log('existingURL', existingURL);
-  existingURL.forEach((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`)
+  existingURL.forEach((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`, { timeout: 5000 })
     .then((response) => {
       if (response.status !== 200) {
         watchedState.getRssStatus = 'failed';// eslint-disable-line no-param-reassign
