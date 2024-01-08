@@ -157,7 +157,7 @@ const render = (state, elements, i18n) => {
 const getRssInfo = (url, watchedState) => {
   console.log('Before getRssInfo', watchedState);
 
-  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 5000 })
+  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 4000 })
     .then((response) => {
       console.log('Response', response.type);
       console.log('Response', response);
