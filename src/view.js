@@ -2,10 +2,10 @@
 
 import onChange from 'on-change';
 import * as yup from 'yup';
+import axios from 'axios';
 import ruLocaleKeys from './locales/ru.js';
 import { rssParser, xmlRender } from './rssParser.js';
 import updatePosts from './updatePosts.js';
-import axios from 'axios';
 
 // Description of Id statuses:
 // for example 01VF - it means 01-number, VF- Validation Failed
@@ -74,7 +74,6 @@ const render = (state, elements, i18n) => {
   const pathLocalValidationId = ruLocaleKeys.statusText.validationFailedId;
   const pathLocalRssSuccessID = ruLocaleKeys.statusText.rssSuccessId;
   const pathLocalRssFailedID = ruLocaleKeys.statusText.rssFailedId;
-  const pathLocalNetworkError = ruLocaleKeys.statusText.newWorkProblems;
   // Validation failed
   switch (state.validationStatus) {
     case 'failed':
@@ -98,7 +97,7 @@ const render = (state, elements, i18n) => {
           break;
         // getRss failed
         case 'failed':
-          console.log('render Failed')
+          console.log('render Failed');
           !elements.infoPElement.classList.contains('text-danger') ? elements.infoPElement.classList.add('text-danger') : undefined;
           elements.infoPElement.classList.contains('text-success') ? elements.infoPElement.classList.remove('text-success') : undefined;
           elements.infoPElement.textContent = i18n.t(pathLocalRssFailedID[state.rssId]);
@@ -112,23 +111,60 @@ const render = (state, elements, i18n) => {
 };
 
 // Get Rss Info
+// const getRssInfo = (url, watchedState) => {
+//   console.log('Before getRssInfo', watchedState);
+
+//   return fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+//     .then((response) => {
+
+//       if (!response.ok) {
+//         watchedState.getRssStatus = 'failed';
+//         watchedState.rssId = '01NP';
+//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
+//       }
+//       console.log('Response', response.type);
+//       console.log('Response', response);
+//       return response.json();  // Обработка тела ответа в формате JSON
+//     })
+//     .then((data) => {
+//       const dataText = data.contents;
+//       const xmlDoc = rssParser(dataText);
+//       console.log('XML Document', xmlDoc);
+
+//       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
+
+//       if (channelElement) {
+//         // Успешный ответ с каналами
+//         watchedState.getRssStatus = 'success';
+//         watchedState.rssId = '01RS';
+//         watchedState.existingURL[url] = true;
+//         console.log('XML Document with Channels', xmlDoc);
+//         xmlRender(xmlDoc, watchedState);
+//       } else {
+//         // В ответе нет данных, считаем, что ресурс не существует
+//         watchedState.getRssStatus = 'failed';
+//         watchedState.rssId = '01RF';
+//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
+//       }
+//     })
+//     .catch((error) => {
+//       console.log('Error message', error.message);
+//       console.error('Error:', error);
+//       return Promise.reject(error);
+//     });
+// };
+
 const getRssInfo = (url, watchedState) => {
   console.log('Before getRssInfo', watchedState);
 
-  return fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 10000 })
     .then((response) => {
-      
-      if (!response.ok) {
-        watchedState.getRssStatus = 'failed';
-        watchedState.rssId = '01NP';
-        throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
-      }
-
+      console.log('Response', response.type);
       console.log('Response', response);
-      return response.json();  // Обработка тела ответа в формате JSON
+      return response;
     })
     .then((data) => {
-      const dataText = data.contents;
+      const dataText = data.data.contents;
       const xmlDoc = rssParser(dataText);
       console.log('XML Document', xmlDoc);
 
@@ -149,6 +185,11 @@ const getRssInfo = (url, watchedState) => {
       }
     })
     .catch((error) => {
+      if (error.code === 'ECONNABORTED') {
+        watchedState.getRssStatus = 'failed';
+        watchedState.rssId = '01NP';
+        throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
+      }
       console.log('Error message', error.message);
       console.error('Error:', error);
       return Promise.reject(error);

@@ -16,9 +16,6 @@ const translation = {
     },
     rssFailedId: {
       '01RF': 'Ресурс не содержит валидный RSS',
-      '01NP': 'Ошибка сети'
-    },
-    newWorkProblems: {
       '01NP': 'Ошибка сети',
     },
   },
