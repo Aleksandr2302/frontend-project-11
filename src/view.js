@@ -154,13 +154,63 @@ const render = (state, elements, i18n) => {
 //     });
 // };
 
+// const getRssInfo = (url, watchedState) => {
+//   console.log('Before getRssInfo', watchedState);
+
+//   return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 5000 })
+//     .then((response) => {
+//       console.log('Response', response.type);
+//       console.log('Response', response);
+//       return response;
+//     })
+//     .then((data) => {
+//       const dataText = data.data.contents;
+//       const xmlDoc = rssParser(dataText);
+//       console.log('XML Document', xmlDoc);
+
+//       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
+
+//       if (channelElement) {
+//         // Успешный ответ с каналами
+//         watchedState.getRssStatus = 'success';
+//         watchedState.rssId = '01RS';
+//         watchedState.existingURL[url] = true;
+//         console.log('XML Document with Channels', xmlDoc);
+//         xmlRender(xmlDoc, watchedState);
+//       } else {
+//         // В ответе нет данных, считаем, что ресурс не существует
+//         watchedState.getRssStatus = 'failed';
+//         watchedState.rssId = '01RF';
+//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
+//       }
+//     })
+//     .catch((error) => {
+//       if (error.code === 'ECONNABORTED') {
+//         watchedState.getRssStatus = 'failed';
+//         watchedState.rssId = '01NP';
+//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
+//       }
+//       console.log('Error message', error.message);
+//       console.error('Error:', error);
+//       return Promise.reject(error);
+//     });
+// };
 const getRssInfo = (url, watchedState) => {
   console.log('Before getRssInfo', watchedState);
 
-  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 4000 })
+  // Создаем экземпляр CancelToken
+  const cancelTokenSource = axios.CancelToken.source();
+
+  // Устанавливаем тайм-аут в 5 секунд
+  const timeoutId = setTimeout(() => {
+    cancelTokenSource.cancel('Request timed out');
+  }, 5000);
+
+  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, {
+    cancelToken: cancelTokenSource.token, // Передаем токен отмены в конфигурацию запроса
+  })
     .then((response) => {
-      console.log('Response', response.type);
-      console.log('Response', response);
+      clearTimeout(timeoutId); // Очищаем таймер, так как запрос выполнен успешно
       return response;
     })
     .then((data) => {
@@ -185,14 +235,14 @@ const getRssInfo = (url, watchedState) => {
       }
     })
     .catch((error) => {
-      if (error.code === 'ECONNABORTED') {
+      console.log('Error message', error.message);
+
+      if (axios.isCancel(error)) {
+        // Запрос был отменен
+        console.log('Request canceled:', error.message);
         watchedState.getRssStatus = 'failed';
         watchedState.rssId = '01NP';
-        throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
       }
-      console.log('Error message', error.message);
-      console.error('Error:', error);
-      return Promise.reject(error);
     });
 };
 
