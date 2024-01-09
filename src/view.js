@@ -250,11 +250,11 @@ const getRssInfo = (url, watchedState) => {
   console.log('Before getRssInfo', watchedState);
 
   return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
-  .catch((error) => {
+    .catch(() => {
       watchedState.getRssStatus = 'failed';
       watchedState.rssId = '01NP';
       throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
-  })
+    })
     .then((data) => {
       const dataText = data.data.contents;
       const xmlDoc = rssParser(dataText);
@@ -275,7 +275,7 @@ const getRssInfo = (url, watchedState) => {
         watchedState.rssId = '01RF';
         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
       }
-    })
+    });
 };
 
 // onChange + IinitilizationView
