@@ -38,7 +38,6 @@ const createNewPostTitle = (postTitle, link) => (
   `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-end-0"><a href="${link.textContent}" class="fw-bold" data-id="2" target="_blank" rel="noopener noreferrer">${postTitle}</a><button type="button" class="btn btn-outline-primary btn-sm" data-id="2" data-bs-toggle="modal" data-bs-target="#modal">${ruLocaleKeys.posts.button}</button></li>
   `);
 
-
 const addFidInfoInState = (fidTitle, fidTitleDesc, watchedState) => {
   const arrExistingURL = Object.keys(watchedState.existingURL);
   const newFid = {
@@ -67,7 +66,6 @@ const addFidId = (watchedState) => {
 const addPostInfoInState = (postTitle, postLink, postDesc, watchedState) => {
   const arrExistingURL = Object.keys(watchedState.existingURL);
   const newPost = {
-    // id: watchedState.posts.length + 1,
     title: postTitle,
     link: postLink,
     goal: postDesc,
@@ -75,45 +73,39 @@ const addPostInfoInState = (postTitle, postLink, postDesc, watchedState) => {
     postId: generatorId(),
     fidId: '',
     isReaded: false,
-    
+
   };
 
   watchedState.posts.push(newPost);
   addFidId(watchedState);
 };
 
+const showButtonFunction = (watchedState, button) => {
+  const liElement = button.closest('li');
+  const aElement = liElement.querySelector('a[data-id="2"]');
+  const titleAElement = aElement.textContent.trim();
+  const titleInModal = document.querySelector('.modal-title');
+  titleInModal.textContent = titleAElement;
 
-
-  const showButtonFunction = (watchedState, button) => {
-    const liElement = button.closest('li');
-    console.log('liEl',liElement)
-    const aElement = liElement.querySelector('a[data-id="2"]');
-    console.log('aEl',aElement)
-    const titleAElement = aElement.textContent.trim();
-    console.log('titleEl',titleAElement)
-    const titleInModal = document.querySelector('.modal-title');
-    titleInModal.textContent = titleAElement;
-
-    const aElementInModal = document.querySelector('.btn.btn-primary.full-article')
-    
-    const goalInModal = document.querySelector('.modal-body.text-break');
-    watchedState.posts.forEach((post)=> {
-      if(post.title === titleAElement) {
-        goalInModal.textContent = post.goal;
-        aElementInModal.href = post.link;
-      } 
-    })
-  
-    if (aElement.classList.contains('fw-bold')) {
-      aElement.classList.remove('fw-bold');
-      aElement.classList.add('fw-normal');
+  const aElementInModal = document.querySelector('.btn.btn-primary.full-article');
+  const goalInModal = document.querySelector('.modal-body.text-break');
+  watchedState.posts.forEach((post) => {
+    if (post.title === titleAElement) {
+      goalInModal.textContent = post.goal;
+      aElementInModal.href = post.link;
     }
-    watchedState.posts.forEach((post) => {
-      if (post.title === titleAElement) {
-        post.isReaded = true;// eslint-disable-line no-param-reassign
-      }
-    });
-  };
+  });
+
+  if (aElement.classList.contains('fw-bold')) {
+    aElement.classList.remove('fw-bold');
+    aElement.classList.add('fw-normal');
+  }
+  watchedState.posts.forEach((post) => {
+    if (post.title === titleAElement) {
+      post.isReaded = true;// eslint-disable-line no-param-reassign
+    }
+  });
+};
 
 const addPost = (post, watchedState, postListClass) => {
   const postTitle = post.querySelector('title').textContent;
@@ -121,20 +113,8 @@ const addPost = (post, watchedState, postListClass) => {
   const link = post.querySelector('link').textContent;
   const postDescription = post.querySelector('description').textContent;
 
-  console.log('postTitle',postTitle, 'link',link, 'postDescription', postDescription)
   addPostInfoInState(postTitle, link, postDescription, watchedState);
   const newPostTitle = createNewPostTitle(postTitle, link);
-  
-  // document.querySelector('.modal-title').textContent = postTitle;
-  // document.querySelector('.modal-body.text-break').textContent = postDescription;
-
-  // const liElements = document.querySelectorAll('.list-group-item.d-flex.justify-content-between.align-items-start')
-  // liElements.forEach((element)=> {
-  //  const button = element.querySelector('.btn.btn-outline-primary');
-  //  const titleEl = element.querySelector('."fw-normal".data-id="2').textContent;
-  //  const descEl = element.querySelector('')
-  // })
-  
   const divModalFooter = document.querySelector('.modal-footer');
   const articleLink = divModalFooter.querySelector('.btn.btn-primary.full-article');
   articleLink.href = link.textContent;
@@ -162,23 +142,20 @@ const xmlRender = (xml, watchedState) => {
   const liFidElement = createLiFidElement(fidTitle, fidTitleDesc);
   fidUlClass.insertAdjacentHTML('afterbegin', liFidElement);
 
-
   // Imems
   const postLists = xml.querySelectorAll('item');
-  console.log('XML', xml)
-  console.log('postLists',postLists)
-
+  console.log('XML', xml);
+  console.log('postLists', postLists);
 
   postLists.forEach((post) => {
-    console.log('POST',post)
+    console.log('POST', post);
     addPost(post, watchedState, postListClass);
   });
   const buttons = document.querySelectorAll('.btn.btn-outline-primary.btn-sm');
-  console.log('buttons', buttons)
+  console.log('buttons', buttons);
   buttons.forEach((button) => {
     button.addEventListener(('click'), () => {
       showButtonFunction(watchedState, button);
-      
     });
   });
 };
