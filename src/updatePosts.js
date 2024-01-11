@@ -8,7 +8,7 @@ const updatePosts = (watchedState) => {
   console.log('UPDATEPOSTS');
   const existingURL = Object.keys(watchedState.existingURL);
   console.log('existingURL', existingURL);
-  existingURL.forEach((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`, { timeout: 5000 })
+  existingURL.forEach((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(`${url}`)}`)
     .then((response) => {
       if (response.status !== 200) {
         watchedState.getRssStatus = 'failed';// eslint-disable-line no-param-reassign
@@ -29,6 +29,7 @@ const updatePosts = (watchedState) => {
 
       postLists.forEach((post) => {
         const postTitle = post.querySelector('title').textContent;
+        const postDescription = post.querySelector('description').textContent;
 
         const postExists = watchedState.posts.some((existsPost) => existsPost.title === postTitle);
         if (!postExists) {
@@ -38,6 +39,8 @@ const updatePosts = (watchedState) => {
             dependsOnTheURL: url,
             postId: generatorId(),
             fidId: '',
+            isReaded: false,
+            goal: postDescription,
           });
           addFidId(watchedState);
           singlePostRender(post);
