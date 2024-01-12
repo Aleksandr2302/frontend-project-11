@@ -78,8 +78,11 @@ const render = (state, elements, i18n) => {
   switch (state.validationStatus) {
     case 'failed':
       elements.infoPElement.textContent = i18n.t(pathLocalValidationId[state.validationId]);
-      !elements.infoPElement.classList.contains('text-danger') ? elements.infoPElement.classList.add('text-danger') : undefined;/*eslint no-unused-expressions: "error"*/
-      !elements.inputField.classList.contains('is-invalid') ? elements.inputField.classList.add('is-invalid') : undefined;/*eslint no-unused-expressions: "error"*/
+      if (!elements.infoPElement.classList.contains('text-danger')) {
+        elements.infoPElement.classList.add('text-danger');
+      } if (!elements.inputField.classList.contains('is-invalid')) {
+        elements.inputField.classList.add('is-invalid');
+      }
       break;
       // Validation success
     case 'success':
@@ -88,20 +91,28 @@ const render = (state, elements, i18n) => {
       switch (state.getRssStatus) {
         case 'success':
           console.log('2 step render');
-          elements.infoPElement.classList.contains('text-danger') ? elements.infoPElement.classList.remove('text-danger') : undefined;/*eslint no-unused-expressions: "error"*/
-          !elements.infoPElement.classList.contains('text-success') ? elements.infoPElement.classList.add('text-success') : undefined;/*eslint no-unused-expressions: "error"*/
+          if (elements.infoPElement.classList.contains('text-danger')) {
+            elements.infoPElement.classList.remove('text-danger');
+          } if (!elements.infoPElement.classList.contains('text-success')) {
+            elements.infoPElement.classList.add('text-success');
+          }
           elements.infoPElement.textContent = i18n.t(pathLocalRssSuccessID[state.rssId]);
-          elements.inputField.classList.contains('is-invalid') ? elements.inputField.classList.remove('is-invalid') : undefined;/*eslint no-unused-expressions: "error"*/
+          elements.inputField.classList.contains('is-invalid') ? elements.inputField.classList.remove('is-invalid') : undefined;
           elements.inputField.value = '';
           elements.inputField.focus();
           break;
         // getRss failed
         case 'failed':
           console.log('render Failed');
-          !elements.infoPElement.classList.contains('text-danger') ? elements.infoPElement.classList.add('text-danger') : undefined;/*eslint no-unused-expressions: "error"*/
-          elements.infoPElement.classList.contains('text-success') ? elements.infoPElement.classList.remove('text-success') : undefined;/*eslint no-unused-expressions: "error"*/
+          if (!elements.infoPElement.classList.contains('text-danger')) {
+            elements.infoPElement.classList.add('text-danger');
+          } if (elements.infoPElement.classList.contains('text-success')) {
+            elements.infoPElement.classList.remove('text-success');
+          }
           elements.infoPElement.textContent = i18n.t(pathLocalRssFailedID[state.rssId]);
-          elements.inputField.classList.contains('is-invalid') ? elements.inputField.classList.remove('is-invalid') : undefined;/*eslint no-unused-expressions: "error"*/
+          if (elements.inputField.classList.contains('is-invalid')) {
+            elements.inputField.classList.remove('is-invalid');
+          }
           break;
         default:
       }
