@@ -99,7 +99,7 @@ const render = (state, elements, i18n) => {
           elements.infoPElement.textContent = i18n.t(pathLocalRssSuccessID[state.rssId]);
           if (elements.inputField.classList.contains('is-invalid')) {
             elements.inputField.classList.remove('is-invalid');
-          } 
+          }
           elements.inputField.value = '';
           elements.inputField.focus();
           break;
