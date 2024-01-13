@@ -18,13 +18,13 @@
 
 ### Development
 To start local server:
-  $ make develop
+  ```$ make develop```
 
 To lint code:
-  $ make lint
+  ```$ make lint```
 
 To build production:
-  $ make build
+  ```$ make build```
 
 ## Demo
 https://frontend-project-11-steel-eight.vercel.app/
