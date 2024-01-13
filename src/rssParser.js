@@ -132,12 +132,10 @@ const xmlRender = (xml, watchedState) => {
   }
   const postListClass = mainPostDiv.querySelector('.list-group.border-0.rounded-0');
   const fidUlClass = mainFidDiv.querySelector('.list-group.border-0.rounded-0');
-  // const newSection = document.querySelector('.container-fluid.container-xxl.p-5');
   // fidTitle
   const fidTitle = xml.querySelector('title').textContent;
   // fidTitleDesc
   const fidTitleDesc = xml.querySelector('description').textContent;
-
   addFidInfoInState(fidTitle, fidTitleDesc, watchedState);
   const liFidElement = createLiFidElement(fidTitle, fidTitleDesc);
   fidUlClass.insertAdjacentHTML('afterbegin', liFidElement);
@@ -145,8 +143,6 @@ const xmlRender = (xml, watchedState) => {
   // Imems
   const postLists = xml.querySelectorAll('item');
   console.log('XML', xml);
-  console.log('postLists', postLists);
-
   postLists.forEach((post) => {
     console.log('POST', post);
     addPost(post, watchedState, postListClass);
@@ -179,4 +175,5 @@ const rssParser = (data) => {
 
 export {
   rssParser, xmlRender, generatorId, addPostInfoInState, addFidId, singlePostRender,
+  showButtonFunction,
 };

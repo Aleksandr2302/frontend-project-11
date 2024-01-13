@@ -1,3 +1,7 @@
+#RSS-reader
+
+##### RSS-reader-hexlet / - JavaScript + Webpack - Third project for Hexlet.io Проект "RSS"
+
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Aleksandr2302/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/Aleksandr2302/frontend-project-11/actions)
 

@@ -19,7 +19,6 @@ yup.setLocale({
     notOneOf: () => ({ key: 'ruLocaleKeys.statusText.validationFailedId[03VF]' }),
     rssSuccess: () => ({ key: 'ruLocaleKeys.statusText.rssSuccessId[01RS]' }),
     rssFailedNotValid: () => ({ key: 'ruLocaleKeys.statusText.rssFailedId[01RF]' }),
-    // rssAlreadyExist: () => ({key: 'ruLocaleKeys.statusText.rss.failed.alreadyExist'}),
   },
 
 });
@@ -33,11 +32,6 @@ const validation = (watchedState, state) => {
       .url()
       .trim()
       .notOneOf(Object.keys(state.existingURL)),
-    // .test('notOneOf', i18n.t('ruLocaleKeys.errors.rss.failed.alreadyExist'), (value) => {
-    //   // Проверка на уникальность URL
-    //   return !Object.keys(state.existingURL).includes(value);
-    // }),
-    // .notOneOf(Object.keys(state.existingURL)),
   });
 
   return schema.validate(state)
@@ -68,21 +62,48 @@ const cleanRssAndValidationStatusAndText = (watchedState) => {
   console.log('Очищенное состояние:', watchedState);
 };
 
+// Functions for render
+const validationFailedUpdate = (elementInfo, elementInput, i18n, state) => {
+  elementInfo.textContent = i18n.t(ruLocaleKeys.statusText.validationFailedId[state.validationId]);
+  if (!elementInfo.classList.contains('text-danger')) {
+    elementInfo.classList.add('text-danger');
+  } if (!elementInput.classList.contains('is-invalid')) {
+    elementInput.classList.add('is-invalid');
+  }
+};
+
+const rssSuccessUpdate = (elementInfo, elementInput, i18n, state) => {
+  if (elementInfo.classList.contains('text-danger')) {
+    elementInfo.classList.remove('text-danger');
+  } if (!elementInfo.classList.contains('text-success')) {
+    elementInfo.classList.add('text-success');
+  }
+  elementInfo.textContent = i18n.t(ruLocaleKeys.statusText.rssSuccessId[state.rssId]);
+  if (elementInput.classList.contains('is-invalid')) {
+    elementInput.classList.remove('is-invalid');
+  }
+  elementInput.value = '';
+  elementInput.focus();
+};
+
+const rssFailedUpdate = (elementInfo, elementInput, i18n, state) => {
+  if (!elementInfo.classList.contains('text-danger')) {
+    elementInfo.classList.add('text-danger');
+  } if (elementInfo.classList.contains('text-success')) {
+    elementInfo.classList.remove('text-success');
+  }
+  elementInfo.textContent = i18n.t(ruLocaleKeys.statusText.rssFailedId[state.rssId]);
+  if (elementInput.classList.contains('is-invalid')) {
+    elementInput.classList.remove('is-invalid');
+  }
+};
+
 // render
 const render = (state, elements, i18n) => {
-  console.log('render');
-  const pathLocalValidationId = ruLocaleKeys.statusText.validationFailedId;
-  const pathLocalRssSuccessID = ruLocaleKeys.statusText.rssSuccessId;
-  const pathLocalRssFailedID = ruLocaleKeys.statusText.rssFailedId;
   // Validation failed
   switch (state.validationStatus) {
     case 'failed':
-      elements.infoPElement.textContent = i18n.t(pathLocalValidationId[state.validationId]);
-      if (!elements.infoPElement.classList.contains('text-danger')) {
-        elements.infoPElement.classList.add('text-danger');
-      } if (!elements.inputField.classList.contains('is-invalid')) {
-        elements.inputField.classList.add('is-invalid');
-      }
+      validationFailedUpdate(elements.infoPElement, elements.inputField, i18n, state);
       break;
       // Validation success
     case 'success':
@@ -91,30 +112,12 @@ const render = (state, elements, i18n) => {
       switch (state.getRssStatus) {
         case 'success':
           console.log('2 step render');
-          if (elements.infoPElement.classList.contains('text-danger')) {
-            elements.infoPElement.classList.remove('text-danger');
-          } if (!elements.infoPElement.classList.contains('text-success')) {
-            elements.infoPElement.classList.add('text-success');
-          }
-          elements.infoPElement.textContent = i18n.t(pathLocalRssSuccessID[state.rssId]);
-          if (elements.inputField.classList.contains('is-invalid')) {
-            elements.inputField.classList.remove('is-invalid');
-          }
-          elements.inputField.value = '';
-          elements.inputField.focus();
+          rssSuccessUpdate(elements.infoPElement, elements.inputField, i18n, state);
           break;
         // getRss failed
         case 'failed':
           console.log('render Failed');
-          if (!elements.infoPElement.classList.contains('text-danger')) {
-            elements.infoPElement.classList.add('text-danger');
-          } if (elements.infoPElement.classList.contains('text-success')) {
-            elements.infoPElement.classList.remove('text-success');
-          }
-          elements.infoPElement.textContent = i18n.t(pathLocalRssFailedID[state.rssId]);
-          if (elements.inputField.classList.contains('is-invalid')) {
-            elements.inputField.classList.remove('is-invalid');
-          }
+          rssFailedUpdate(elements.infoPElement, elements.inputField, i18n, state);
           break;
         default:
       }
@@ -124,172 +127,30 @@ const render = (state, elements, i18n) => {
 };
 
 // Get Rss Info
-// const getRssInfo = (url, watchedState) => {
-//   console.log('Before getRssInfo', watchedState);
-
-//   return fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
-//     .then((response) => {
-
-//       if (!response.ok) {
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01NP';
-//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
-//       }
-//       console.log('Response', response.type);
-//       console.log('Response', response);
-//       return response.json();  // Обработка тела ответа в формате JSON
-//     })
-//     .then((data) => {
-//       const dataText = data.contents;
-//       const xmlDoc = rssParser(dataText);
-//       console.log('XML Document', xmlDoc);
-
-//       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
-
-//       if (channelElement) {
-//         // Успешный ответ с каналами
-//         watchedState.getRssStatus = 'success';
-//         watchedState.rssId = '01RS';
-//         watchedState.existingURL[url] = true;
-//         console.log('XML Document with Channels', xmlDoc);
-//         xmlRender(xmlDoc, watchedState);
-//       } else {
-//         // В ответе нет данных, считаем, что ресурс не существует
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01RF';
-//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
-//       }
-//     })
-//     .catch((error) => {
-//       console.log('Error message', error.message);
-//       console.error('Error:', error);
-//       return Promise.reject(error);
-//     });
-// };
-
-// const getRssInfo = (url, watchedState) => {
-//   console.log('Before getRssInfo', watchedState);
-
-//   return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 5000 })
-//     .then((response) => {
-//       console.log('Response', response.type);
-//       console.log('Response', response);
-//       return response;
-//     })
-//     .then((data) => {
-//       const dataText = data.data.contents;
-//       const xmlDoc = rssParser(dataText);
-//       console.log('XML Document', xmlDoc);
-
-//       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
-
-//       if (channelElement) {
-//         // Успешный ответ с каналами
-//         watchedState.getRssStatus = 'success';
-//         watchedState.rssId = '01RS';
-//         watchedState.existingURL[url] = true;
-//         console.log('XML Document with Channels', xmlDoc);
-//         xmlRender(xmlDoc, watchedState);
-//       } else {
-//         // В ответе нет данных, считаем, что ресурс не существует
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01RF';
-//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
-//       }
-//     })
-//     .catch((error) => {
-//       if (error.code === 'ECONNABORTED') {
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01NP';
-//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
-//       }
-//       console.log('Error message', error.message);
-//       console.error('Error:', error);
-//       return Promise.reject(error);
-//     });
-// };
-// const getRssInfo = (url, watchedState) => {
-//   console.log('Before getRssInfo', watchedState);
-
-//   // Создаем экземпляр CancelToken
-//   const cancelTokenSource = axios.CancelToken.source();
-
-//   // Устанавливаем тайм-аут в 5 секунд
-//   const timeoutId = setTimeout(() => {
-//     cancelTokenSource.cancel('Request timed out');
-//   }, 5000);
-
-//   return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, {
-//     cancelToken: cancelTokenSource.token, // Передаем токен отмены в конфигурацию запроса
-//   })
-//     .then((response) => {
-//       clearTimeout(timeoutId); // Очищаем таймер, так как запрос выполнен успешно
-//       return response;
-//     })
-//     .then((data) => {
-//       const dataText = data.data.contents;
-//       const xmlDoc = rssParser(dataText);
-//       console.log('XML Document', xmlDoc);
-
-//       const channelElement = xmlDoc.getElementsByTagName('channel')[0];
-
-//       if (channelElement) {
-//         // Успешный ответ с каналами
-//         watchedState.getRssStatus = 'success';
-//         watchedState.rssId = '01RS';
-//         watchedState.existingURL[url] = true;
-//         console.log('XML Document with Channels', xmlDoc);
-//         xmlRender(xmlDoc, watchedState);
-//       } else {
-//         // В ответе нет данных, считаем, что ресурс не существует
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01RF';
-//         throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
-//       }
-//     })
-//     .catch((error) => {
-//       console.log('Error message', error.message);
-
-//       if (axios.isCancel(error)) {
-//         // Запрос был отменен
-//         console.log('Request canceled:', error.message);
-//         watchedState.getRssStatus = 'failed';
-//         watchedState.rssId = '01NP';
-//       }
-//     });
-// };
-
-const getRssInfo = (url, watchedState) => {
-  console.log('Before getRssInfo', watchedState);
-
-  return axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
-    .catch(() => {
+const getRssInfo = (url, watchedState) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+  .catch(() => {
+    watchedState.getRssStatus = 'failed';
+    watchedState.rssId = '01NP';
+    throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
+  })
+  .then((data) => {
+    const dataText = data.data.contents;
+    const xmlDoc = rssParser(dataText);
+    console.log('XML Document', xmlDoc);
+    const channelElement = xmlDoc.getElementsByTagName('channel')[0];
+    if (channelElement) {
+      // Успешный ответ с каналами
+      watchedState.getRssStatus = 'success';
+      watchedState.rssId = '01RS';
+      watchedState.existingURL[url] = true;
+      xmlRender(xmlDoc, watchedState);
+    } else {
+      // В ответе нет данных, считаем, что ресурс не существует
       watchedState.getRssStatus = 'failed';
-      watchedState.rssId = '01NP';
-      throw new Error(ruLocaleKeys.statusText.rssFailedId['01NP']);
-    })
-    .then((data) => {
-      const dataText = data.data.contents;
-      const xmlDoc = rssParser(dataText);
-      console.log('XML Document', xmlDoc);
-
-      const channelElement = xmlDoc.getElementsByTagName('channel')[0];
-
-      if (channelElement) {
-        // Успешный ответ с каналами
-        watchedState.getRssStatus = 'success';
-        watchedState.rssId = '01RS';
-        watchedState.existingURL[url] = true;
-        console.log('XML Document with Channels', xmlDoc);
-        xmlRender(xmlDoc, watchedState);
-      } else {
-        // В ответе нет данных, считаем, что ресурс не существует
-        watchedState.getRssStatus = 'failed';
-        watchedState.rssId = '01RF';
-        throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
-      }
-    });
-};
+      watchedState.rssId = '01RF';
+      throw new Error(ruLocaleKeys.statusText.rssFailedId['01RF']);
+    }
+  });
 
 // onChange + IinitilizationView
 const initilizationView = (state, elements, i18n) => {
