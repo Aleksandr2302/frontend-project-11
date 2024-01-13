@@ -139,12 +139,10 @@ const xmlRender = (xml, watchedState) => {
   addFidInfoInState(fidTitle, fidTitleDesc, watchedState);
   const liFidElement = createLiFidElement(fidTitle, fidTitleDesc);
   fidUlClass.insertAdjacentHTML('afterbegin', liFidElement);
-
   // Imems
   const postLists = xml.querySelectorAll('item');
   console.log('XML', xml);
   postLists.forEach((post) => {
-    console.log('POST', post);
     addPost(post, watchedState, postListClass);
   });
   const buttons = document.querySelectorAll('.btn.btn-outline-primary.btn-sm');
